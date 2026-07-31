@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- Remove redundant Home Assistant metadata defaults reported by the app linter.
+
 ## 0.2.0
 
 - Add a Home Assistant Ingress web interface with live tunnel status.

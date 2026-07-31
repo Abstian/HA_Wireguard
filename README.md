@@ -51,7 +51,7 @@ Build the app container locally:
 
 ```bash
 docker build \
-  --build-arg BUILD_VERSION=0.2.0 \
+  --build-arg BUILD_VERSION=0.2.1 \
   --build-arg BUILD_ARCH=amd64 \
   -t ha-wireguard-client-router:dev \
   wireguard_client_router
