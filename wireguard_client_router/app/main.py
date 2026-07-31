@@ -43,6 +43,7 @@ PUBLIC_KEY_PATH = CONFIG_DIR / "public.key"
 RUNTIME_PRIVATE_KEY_PATH = RUN_DIR / "private.key"
 RUNTIME_PRESHARED_KEY_PATH = RUN_DIR / "preshared.key"
 IMPORTED_CONFIG_PATH = CONFIG_DIR / "imported_config.json"
+IPV4_FORWARD_PATH = Path("/proc/sys/net/ipv4/ip_forward")
 WEB_ROOT = Path(__file__).resolve().parent / "web"
 INGRESS_HOST = os.environ.get("INGRESS_HOST", "0.0.0.0")
 INGRESS_PORT = int(os.environ.get("INGRESS_PORT", "8099"))
@@ -1013,11 +1014,31 @@ class WireGuardRouter:
             atomic_write(RUNTIME_PRESHARED_KEY_PATH, self.settings.preshared_key + "\n")
 
     def _enable_forwarding(self) -> None:
-        forwarding_path = Path("/proc/sys/net/ipv4/ip_forward")
         try:
-            forwarding_path.write_text("1\n", encoding="ascii")
+            forwarding_state = IPV4_FORWARD_PATH.read_text(encoding="ascii").strip()
         except OSError as err:
-            raise CommandError("Could not enable IPv4 forwarding in the app container") from err
+            raise CommandError(
+                "Could not read the IPv4 forwarding state in the app container"
+            ) from err
+
+        if forwarding_state == "1":
+            logging.debug("IPv4 forwarding is already enabled")
+            return
+
+        try:
+            IPV4_FORWARD_PATH.write_text("1\n", encoding="ascii")
+            forwarding_state = IPV4_FORWARD_PATH.read_text(encoding="ascii").strip()
+        except OSError as err:
+            raise CommandError(
+                "IPv4 forwarding is disabled on the Home Assistant host and cannot "
+                "be enabled from the app container; enable net.ipv4.ip_forward=1 "
+                "on the host and restart the app"
+            ) from err
+
+        if forwarding_state != "1":
+            raise CommandError(
+                "IPv4 forwarding remained disabled after the enable request"
+            )
 
     def _apply_firewall(self) -> None:
         self.runner.run(

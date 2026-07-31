@@ -220,6 +220,13 @@ Supervisor API, Docker socket, or full-access permission.
 - Check a host firewall on the target device. With NAT, it sees the connection
   as coming from the Home Assistant host.
 
+### IPv4 forwarding is disabled
+
+On Home Assistant OS, IPv4 forwarding is normally already enabled. The app
+reads and reuses that state without attempting to modify the read-only sysctl
+mount. On a Supervised installation where it is disabled, enable
+`net.ipv4.ip_forward=1` persistently on the Linux host and restart the app.
+
 ### Small packets work, larger connections stall
 
 Reduce `wireguard.mtu`, for example from `1420` to `1380`.

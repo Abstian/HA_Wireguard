@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.3
+
+- Reuse an already enabled IPv4 forwarding state when Home Assistant exposes
+  the container sysctl path as read-only.
+- Report an actionable host configuration error when forwarding is actually
+  disabled.
+
 ## 0.2.2
 
 - Allow the Home Assistant base image's S6 `/init` startup paths in AppArmor.

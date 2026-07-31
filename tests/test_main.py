@@ -155,6 +155,40 @@ class FirewallTests(unittest.TestCase):
         self.assertNotIn("0.0.0.0/0", rules)
 
 
+class ForwardingTests(unittest.TestCase):
+    def setUp(self):
+        self.router = object.__new__(module.WireGuardRouter)
+
+    def test_does_not_write_when_forwarding_is_already_enabled(self):
+        forwarding_path = mock.Mock()
+        forwarding_path.read_text.return_value = "1\n"
+
+        with mock.patch.object(module, "IPV4_FORWARD_PATH", forwarding_path):
+            self.router._enable_forwarding()
+
+        forwarding_path.write_text.assert_not_called()
+
+    def test_enables_and_verifies_disabled_forwarding(self):
+        forwarding_path = mock.Mock()
+        forwarding_path.read_text.side_effect = ["0\n", "1\n"]
+
+        with mock.patch.object(module, "IPV4_FORWARD_PATH", forwarding_path):
+            self.router._enable_forwarding()
+
+        forwarding_path.write_text.assert_called_once_with("1\n", encoding="ascii")
+
+    def test_reports_host_action_when_disabled_state_is_read_only(self):
+        forwarding_path = mock.Mock()
+        forwarding_path.read_text.return_value = "0\n"
+        forwarding_path.write_text.side_effect = OSError("read-only file system")
+
+        with mock.patch.object(module, "IPV4_FORWARD_PATH", forwarding_path):
+            with self.assertRaisesRegex(
+                module.CommandError, "enable net.ipv4.ip_forward=1 on the host"
+            ):
+                self.router._enable_forwarding()
+
+
 class EndpointTests(unittest.TestCase):
     def test_rejects_endpoint_inside_remote_route(self):
         settings_test = SettingsTests()
