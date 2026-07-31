@@ -1,0 +1,31 @@
+#include <tunables/global>
+
+profile wireguard_client_router flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  capability net_admin,
+  capability net_raw,
+  network,
+
+  signal (send) set=(kill,term,int,hup,cont),
+  signal (receive),
+
+  /run.sh rix,
+  /bin/bash rix,
+  /usr/bin/python3* rix,
+  /usr/bin/wg rix,
+  /usr/bin/wireguard-go rix,
+  /sbin/ip rix,
+  /usr/sbin/nft rix,
+
+  /app/** r,
+  /data/** rwk,
+  /config/** rwk,
+  /run/** rwk,
+  /tmp/** rwk,
+
+  /dev/net/tun rw,
+  /proc/net/** r,
+  /proc/sys/net/ipv4/ip_forward rw,
+  /sys/class/net/** r,
+}

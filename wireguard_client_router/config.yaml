@@ -1,0 +1,57 @@
+name: WireGuard Client Router
+version: "0.2.0"
+slug: wireguard_client_router
+description: Connects to an existing WireGuard server and exposes selected LAN targets
+url: https://github.com/Abstian/HA_Wireguard/tree/main/wireguard_client_router
+arch:
+  - aarch64
+  - amd64
+startup: services
+boot: auto
+init: false
+apparmor: true
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:vpn
+panel_title: WireGuard Router
+panel_admin: true
+privileged:
+  - NET_ADMIN
+devices:
+  - /dev/net/tun
+map:
+  - addon_config:rw
+options:
+  server: {}
+  client:
+    address: 10.40.0.2/32
+    generate_private_key: true
+  routing:
+    remote_subnets:
+      - 10.40.0.0/24
+    lan_targets:
+      - 192.168.1.0/24
+    masquerade: true
+  wireguard:
+    persistent_keepalive: 25
+    mtu: 1420
+  log_level: info
+schema:
+  server:
+    endpoint: str?
+    public_key: str?
+    preshared_key: password?
+  client:
+    address: str
+    private_key: password?
+    generate_private_key: bool
+  routing:
+    remote_subnets:
+      - str
+    lan_targets:
+      - str
+    masquerade: bool
+  wireguard:
+    persistent_keepalive: int(0,65535)
+    mtu: int(1280,1500)
+  log_level: list(debug|info|warning|error)

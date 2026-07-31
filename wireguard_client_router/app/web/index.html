@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <base href="__INGRESS_PATH__">
+    <title>WireGuard Client Router</title>
+    <link rel="stylesheet" href="static/app.css">
+    <script src="static/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-mark" aria-hidden="true">
+          <span class="brand-node node-a"></span>
+          <span class="brand-node node-b"></span>
+          <span class="brand-node node-c"></span>
+        </div>
+        <div class="brand-copy">
+          <p class="eyebrow">Home Assistant</p>
+          <h1>WireGuard Router</h1>
+        </div>
+        <div class="header-status" id="headerStatus">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="headerStatusText">Wird geladen</span>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Bereiche">
+        <button class="tab is-active" type="button" data-tab="overview" aria-selected="true">
+          Übersicht
+        </button>
+        <button class="tab" type="button" data-tab="configuration" aria-selected="false">
+          Konfiguration importieren
+        </button>
+      </nav>
+
+      <main>
+        <section id="overviewPanel" class="tab-panel" aria-labelledby="overviewTitle">
+          <div class="hero-card">
+            <div>
+              <p class="section-kicker">Tunnelstatus</p>
+              <h2 id="overviewTitle">Sicherer Zugang zum Heimnetz</h2>
+              <p class="hero-message" id="statusMessage">Status wird abgerufen …</p>
+            </div>
+            <div class="connection-orbit" id="connectionOrbit" aria-hidden="true">
+              <span class="orbit-home">HA</span>
+              <span class="orbit-line"></span>
+              <span class="orbit-vpn">WG</span>
+            </div>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <p>Letzter Handshake</p>
+              <strong id="handshakeValue">–</strong>
+              <span id="handshakeDetail">Noch keine Daten</span>
+            </article>
+            <article class="metric-card">
+              <p>Empfangen</p>
+              <strong id="receivedValue">–</strong>
+              <span>durch den Tunnel</span>
+            </article>
+            <article class="metric-card">
+              <p>Gesendet</p>
+              <strong id="sentValue">–</strong>
+              <span>durch den Tunnel</span>
+            </article>
+          </div>
+
+          <div class="detail-grid">
+            <article class="panel-card">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Verbindung</p>
+                  <h3>Tunnelparameter</h3>
+                </div>
+                <span class="source-badge" id="configSource">Nicht konfiguriert</span>
+              </div>
+              <dl class="detail-list">
+                <div><dt>Server</dt><dd id="endpointValue">–</dd></div>
+                <div><dt>Client-Adresse</dt><dd id="clientAddressValue">–</dd></div>
+              </dl>
+              <div class="public-key-row" id="publicKeyRow" hidden>
+                <div>
+                  <span>Öffentlicher Client-Schlüssel</span>
+                  <code id="publicKeyValue"></code>
+                </div>
+                <button class="button button-quiet" id="copyPublicKey" type="button">Kopieren</button>
+              </div>
+            </article>
+
+            <article class="panel-card">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-kicker">Firewall</p>
+                  <h3>Freigegebene Wege</h3>
+                </div>
+                <span class="lock-badge">NAT aktiv</span>
+              </div>
+              <div class="route-group">
+                <span>Entfernte Quellnetze</span>
+                <div class="chip-list" id="remoteNetworkList"><span class="empty-value">–</span></div>
+              </div>
+              <div class="route-arrow" aria-hidden="true">↓ nur zu ↓</div>
+              <div class="route-group">
+                <span>LAN-Ziele</span>
+                <div class="chip-list" id="lanTargetList"><span class="empty-value">–</span></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="overview-actions">
+            <button class="button button-primary" id="openImport" type="button">WireGuard-Konfiguration importieren</button>
+            <button class="button button-danger" id="resetImport" type="button" hidden>Import entfernen</button>
+          </div>
+        </section>
+
+        <section id="configurationPanel" class="tab-panel" hidden aria-labelledby="configurationTitle">
+          <div class="configuration-header">
+            <div>
+              <p class="section-kicker">Geführte Einrichtung</p>
+              <h2 id="configurationTitle">WireGuard-Konfiguration übernehmen</h2>
+              <p>Eine vorhandene Client-Konfiguration hochladen oder einfügen. Vor dem Speichern werden alle Routingregeln geprüft.</p>
+            </div>
+            <div class="step-indicator" aria-label="Drei Schritte">
+              <span class="is-current">1</span><i></i><span>2</span><i></i><span>3</span>
+            </div>
+          </div>
+
+          <div class="import-layout">
+            <article class="panel-card import-card">
+              <div class="numbered-heading"><span>1</span><div><h3>Datei auswählen</h3><p>Private Schlüssel bleiben innerhalb dieses Add-ons.</p></div></div>
+              <input id="configFile" type="file" accept=".conf,.ini,text/plain" hidden>
+              <button class="drop-zone" id="dropZone" type="button">
+                <span class="upload-symbol" aria-hidden="true">↑</span>
+                <strong>.conf-Datei hier ablegen</strong>
+                <span>oder zum Auswählen klicken · maximal 64 KiB</span>
+              </button>
+              <div class="or-divider"><span>oder einfügen</span></div>
+              <label class="field-label" for="configText">WireGuard-Konfiguration</label>
+              <textarea id="configText" class="config-text" rows="13" spellcheck="false" autocomplete="off" placeholder="[Interface]&#10;PrivateKey = …&#10;Address = 10.40.0.2/32&#10;&#10;[Peer]&#10;PublicKey = …&#10;Endpoint = vpn.example.de:51820&#10;AllowedIPs = 10.40.0.0/24, 192.168.178.0/24"></textarea>
+              <div class="secret-notice"><span aria-hidden="true">●</span> Schlüssel werden nicht in der Vorschau oder im Protokoll angezeigt.</div>
+              <button class="button button-primary button-wide" id="previewConfig" type="button">Konfiguration prüfen</button>
+            </article>
+
+            <article class="panel-card preview-card" id="previewCard" aria-live="polite">
+              <div class="numbered-heading"><span>2</span><div><h3>Prüfen und eingrenzen</h3><p id="previewIntro">Zuerst eine Konfiguration prüfen.</p></div></div>
+              <div id="previewEmpty" class="preview-empty">
+                <div class="preview-glyph" aria-hidden="true">✓</div>
+                <p>Endpoint, Adresse und Schlüsselstruktur werden geprüft. Unsichere Skriptanweisungen und Volltunnel-Routen werden nicht übernommen.</p>
+              </div>
+              <div id="previewContent" hidden>
+                <dl class="preview-details">
+                  <div><dt>Endpoint</dt><dd id="previewEndpoint">–</dd></div>
+                  <div><dt>Client-Adresse</dt><dd id="previewAddress">–</dd></div>
+                  <div><dt>Server-Key</dt><dd id="previewFingerprint">–</dd></div>
+                  <div><dt>MTU / Keepalive</dt><dd id="previewAdvanced">–</dd></div>
+                </dl>
+
+                <div class="allowed-preview">
+                  <span>Importierte AllowedIPs</span>
+                  <div class="chip-list" id="allowedIpList"></div>
+                </div>
+
+                <label class="field-label" for="remoteSubnets">Entfernte WireGuard-Quellnetze</label>
+                <textarea id="remoteSubnets" class="network-text" rows="4" spellcheck="false" placeholder="10.40.0.0/24"></textarea>
+                <p class="field-help">Adressen der entfernten WireGuard-Peers, eine CIDR-Angabe pro Zeile.</p>
+
+                <label class="field-label" for="lanTargets">Erlaubte Geräte oder Netze im Heimnetz</label>
+                <textarea id="lanTargets" class="network-text" rows="4" spellcheck="false" placeholder="192.168.178.20/32"></textarea>
+                <p class="field-help">Für einzelne Geräte `/32` verwenden. Nur private IPv4-Ziele sind zulässig.</p>
+
+                <div class="warning-box" id="warningBox" hidden>
+                  <strong>Bitte prüfen</strong>
+                  <ul id="warningList"></ul>
+                </div>
+
+                <div class="activation-block">
+                  <div class="numbered-heading compact"><span>3</span><div><h3>Aktivieren</h3><p>Die bestehende Tunnelkonfiguration wird sicher ersetzt.</p></div></div>
+                  <button class="button button-success button-wide" id="applyConfig" type="button">Konfiguration speichern und verbinden</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+name: Home Assistant app lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  find:
+    name: Find apps
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.apps.outputs.addons_list }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+      - name: Find app directories
+        id: apps
+        uses: home-assistant/actions/helpers/find-addons@master
+
+  lint:
+    name: Lint ${{ matrix.path }}
+    runs-on: ubuntu-latest
+    needs: find
+    strategy:
+      fail-fast: false
+      matrix:
+        path: ${{ fromJSON(needs.find.outputs.apps) }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+      - name: Run Home Assistant app lint
+        uses: frenck/action-addon-linter@v2.21
+        with:
+          path: ./${{ matrix.path }}

@@ -1,0 +1,52 @@
+configuration:
+  server:
+    name: WireGuard-Server
+    description: Verbindungsdaten und öffentliche Identität des vorhandenen Servers.
+    fields:
+      endpoint:
+        name: Endpunkt
+        description: Bei Verwendung des Webimports optional. Hostname oder IP-Adresse des Servers mit UDP-Port.
+      public_key:
+        name: Öffentlicher Serverschlüssel
+        description: Bei Verwendung des Webimports optional. Öffentlicher WireGuard-Schlüssel des vorhandenen Servers.
+      preshared_key:
+        name: Preshared Key
+        description: Optionaler zusätzlicher WireGuard-Schlüssel. Er wird nie protokolliert.
+  client:
+    name: Home-Assistant-Peer
+    description: Tunnelidentität dieses Add-ons.
+    fields:
+      address:
+        name: Tunneladresse
+        description: IPv4-/32-Adresse dieses Peers, zum Beispiel 10.40.0.2/32.
+      private_key:
+        name: Privater Schlüssel
+        description: Optionaler vorhandener privater Schlüssel. Leer lassen, um den persistent erzeugten Schlüssel zu verwenden.
+      generate_private_key:
+        name: Privaten Schlüssel erzeugen
+        description: Erzeugt und speichert einen Schlüssel, wenn weder Option noch gespeicherter Schlüssel vorhanden sind.
+  routing:
+    name: Beschränktes Routing
+    description: Explizite Quell- und Ziel-Freigaben für weitergeleiteten Tunnelverkehr.
+    fields:
+      remote_subnets:
+        name: Entfernte Quellnetze
+        description: WireGuard-Clientnetze, deren Verkehr in das LAN gelangen darf.
+      lan_targets:
+        name: LAN-Ziele
+        description: Private LAN-Netze oder einzelne /32-Geräte, die erreichbar sein sollen.
+      masquerade:
+        name: NAT aktivieren
+        description: Muss in dieser Version aktiv bleiben, damit LAN-Geräte keine Rückroute benötigen.
+  wireguard:
+    name: Erweiterte WireGuard-Einstellungen
+    fields:
+      persistent_keepalive:
+        name: Persistent Keepalive
+        description: Sekunden zwischen Keepalive-Paketen; hinter NAT werden 25 Sekunden empfohlen.
+      mtu:
+        name: MTU
+        description: MTU des Tunnels. 1420 passt für die meisten Verbindungen.
+  log_level:
+    name: Protokollstufe
+    description: Detailgrad der Diagnose. Geheime Schlüssel werden immer ausgeblendet.

@@ -1,0 +1,52 @@
+configuration:
+  server:
+    name: WireGuard server
+    description: Connection details and public identity of the existing server.
+    fields:
+      endpoint:
+        name: Endpoint
+        description: Optional when using the web importer. Server hostname or IP address followed by the UDP port.
+      public_key:
+        name: Server public key
+        description: Optional when using the web importer. Public WireGuard key of the existing server.
+      preshared_key:
+        name: Preshared key
+        description: Optional additional WireGuard preshared key. It is never written to the log.
+  client:
+    name: Home Assistant peer
+    description: Tunnel identity used by this app.
+    fields:
+      address:
+        name: Tunnel address
+        description: IPv4 /32 address assigned to this peer, for example 10.40.0.2/32.
+      private_key:
+        name: Private key
+        description: Optional existing private key. Leave empty to use a persisted generated key.
+      generate_private_key:
+        name: Generate private key
+        description: Generate and persist a key when neither an option nor a stored key exists.
+  routing:
+    name: Restricted routing
+    description: Explicit source and destination allowlists for forwarded tunnel traffic.
+    fields:
+      remote_subnets:
+        name: Remote source networks
+        description: WireGuard client networks whose traffic may enter the LAN.
+      lan_targets:
+        name: LAN targets
+        description: Private LAN networks or /32 hosts reachable through this app.
+      masquerade:
+        name: Enable NAT
+        description: Must remain enabled in this release so LAN devices need no return route.
+  wireguard:
+    name: Advanced WireGuard settings
+    fields:
+      persistent_keepalive:
+        name: Persistent keepalive
+        description: Seconds between keepalive packets; 25 is recommended behind NAT.
+      mtu:
+        name: MTU
+        description: Tunnel MTU. 1420 is suitable for most connections.
+  log_level:
+    name: Log level
+    description: Detail level for diagnostics. Secret keys are always redacted.
