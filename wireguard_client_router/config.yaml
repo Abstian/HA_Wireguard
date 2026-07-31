@@ -1,5 +1,5 @@
 name: WireGuard Client Router
-version: "0.2.1"
+version: "0.2.2"
 slug: wireguard_client_router
 description: Connects to an existing WireGuard server and exposes selected LAN targets
 url: https://github.com/Abstian/HA_Wireguard/tree/main/wireguard_client_router

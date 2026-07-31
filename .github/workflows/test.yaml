@@ -30,7 +30,7 @@ jobs:
       - name: Build amd64 app image
         run: >-
           docker build
-          --build-arg BUILD_VERSION=0.2.1
+          --build-arg BUILD_VERSION=0.2.2
           --build-arg BUILD_ARCH=amd64
           --tag ha-wireguard-client-router:test
           wireguard_client_router

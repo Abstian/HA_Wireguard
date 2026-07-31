@@ -3,12 +3,26 @@
 profile wireguard_client_router flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
+  file,
   capability net_admin,
   capability net_raw,
   network,
 
   signal (send) set=(kill,term,int,hup,cont),
   signal (receive),
+
+  # S6-Overlay from the Home Assistant base image
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
 
   /run.sh rix,
   /bin/bash rix,
@@ -21,7 +35,6 @@ profile wireguard_client_router flags=(attach_disconnected,mediate_deleted) {
   /app/** r,
   /data/** rwk,
   /config/** rwk,
-  /run/** rwk,
   /tmp/** rwk,
 
   /dev/net/tun rw,

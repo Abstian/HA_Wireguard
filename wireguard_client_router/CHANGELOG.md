@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+- Allow the Home Assistant base image's S6 `/init` startup paths in AppArmor.
+
 ## 0.2.1
 
 - Remove redundant Home Assistant metadata defaults reported by the app linter.
